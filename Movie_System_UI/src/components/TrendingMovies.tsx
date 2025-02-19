@@ -8,36 +8,38 @@ const API_URL = "http://www.omdbapi.com/";
 
 // Styling for the carousel container
 const CarouselContainer = styled(Box)(({ theme }) => ({
-  overflow: "hidden",
+  width: "100vw", // Carousel should take up the entire width of the screen
+  overflow: "hidden", // Hide anything outside the container's bounds
   position: "relative",
-  width: "300%",
-  marginTop: -200, // Adjusted gap from navbar (increase or decrease as needed)
-  paddingTop: "20px", // Adjust padding-top to push down the content below the navbar
+  height: "450px", // Adjust the height to make it more compact
+  paddingTop: "10px", // Reduced padding-top to bring the carousel closer to the content
 }));
 
-// Styling for the movie slider (with smoother animation)
+// Styling for the movie slider (with smoother animation and continuous movement)
 const MovieSlider = styled(Box)(({ theme }) => ({
   display: "flex",
   gap: "20px", // Space between cards
-  animation: "slide 6s infinite linear", // Adjusted the speed
+  animation: "slide 36s infinite linear", // Continuous linear animation for smooth loop
   "@keyframes slide": {
     "0%": {
-      transform: "translateX(0)",
+      transform: "translateX(0)", // Start position
     },
     "100%": {
-      transform: "translateX(-100%)",
+      transform: "translateX(-100%)", // End position (move completely to the left)
     },
   },
 }));
 
-// Styling for individual movie cards
+// Styling for individual movie cards (with larger size and smooth transition)
 const StyledCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  // width: "calc(100% / 4)", // Increase width of each card (4 cards per row)
+  width: "300px", // Larger width for the cards
+  height: "400px", // Fixed height for the cards
   borderRadius: "12px", // Rounded corners for a modern look
   boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)", // Soft shadow for better visibility
   overflow: "hidden",
   transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+  transform: "scale(1)", // No rotation
   "&:hover": {
     transform: "scale(1.05)", // Slight zoom-in effect
     boxShadow: "0 10px 20px rgba(0, 0, 0, 0.4)", // Enhanced shadow on hover
@@ -66,37 +68,53 @@ const MovieDetails = styled(Box)(({ theme }) => ({
 
 const MovieSliderComponent: React.FC = () => {
   const [movies, setMovies] = useState<any[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchMovies = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(API_URL, {
           params: {
             s: "action", // Adjust the query to your needs
             apiKey: API_KEY,
+            page,
           },
         });
 
         if (response.data.Response === "True") {
-          setMovies(response.data.Search);
+          setMovies((prevMovies) => [...prevMovies, ...response.data.Search]);
         }
       } catch (err) {
         console.error("Error fetching movies:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMovies();
-  }, []);
+  }, [page]); // This hook depends on the 'page' state
+
+  useEffect(() => {
+    if (movies.length > 0 && !loading) {
+      setPage((prevPage) => prevPage + 1); // Only increment the page if movies are fetched
+    }
+  }, [movies, loading]); // Depend on both 'movies' and 'loading' states
+
+  // We will clone the first few movies to create a smooth loop
+  const movieCount = 15;
+  const movieList = [...movies.slice(0, movieCount), ...movies.slice(0, movieCount)];
 
   return (
     <Container sx={{ padding: 0 }}>
       <CarouselContainer>
         <MovieSlider>
-          {movies.slice(0, 10).map((movie) => (
-            <StyledCard key={movie.imdbID}>
+          {movieList.map((movie, index) => (
+            <StyledCard key={index}>
               <CardMedia
                 component="img"
-                height="400" // Increased height of the image for better display
+                height="100%" // Make the image fill the height of the card
                 width="100%" // Ensure the image fills the card's width
                 image={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300"}
                 alt={movie.Title}

@@ -1,6 +1,7 @@
 import React from "react";
 import MovieSearch from "./components/MovieSearch";
 import TrendingMovies from "./components/TrendingMovies";
+import Footer from "./components/Footer";
 
 const App: React.FC = () => {
   return (
@@ -9,7 +10,9 @@ const App: React.FC = () => {
       <MovieSearch />
 
       {/* Trending Movies */}
-      <TrendingMovies />
+      {/* <TrendingMovies /> */}
+
+      <Footer /> {/* Add the footer here */}
     </div>
   );
 };
