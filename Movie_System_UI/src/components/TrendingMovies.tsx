@@ -1,123 +1,121 @@
-import React, { useEffect, useState } from "react";
-import Slider from "react-slick";
+import React, { useState, useEffect } from "react";
+import { Container, Box, Card, CardMedia, Typography } from "@mui/material";
 import axios from "axios";
-import { Box, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 const API_KEY = "7c9f0926"; // Replace with your OMDb API key
-const API_URL = "https://www.omdbapi.com/";
+const API_URL = "http://www.omdbapi.com/";
 
-// Styled Components
-const SliderContainer = styled(Box)({
-  width: "100%",
-  height: "50vh",
-  marginTop: "80px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+// Styling for the carousel container
+const CarouselContainer = styled(Box)(({ theme }) => ({
   overflow: "hidden",
-});
-
-const MovieCard = styled(Box)({
   position: "relative",
-  width: "100%",
-  height: "100%",
-  borderRadius: "10px",
-  overflow: "hidden",
-  cursor: "pointer",
-  transition: "transform 0.3s ease-in-out",
-  "&:hover": {
-    transform: "scale(1.05)",
-  },
-});
+  width: "300%",
+  marginTop: -200, // Adjusted gap from navbar (increase or decrease as needed)
+  paddingTop: "20px", // Adjust padding-top to push down the content below the navbar
+}));
 
-const MovieInfo = styled(Box)({
+// Styling for the movie slider (with smoother animation)
+const MovieSlider = styled(Box)(({ theme }) => ({
+  display: "flex",
+  gap: "20px", // Space between cards
+  animation: "slide 6s infinite linear", // Adjusted the speed
+  "@keyframes slide": {
+    "0%": {
+      transform: "translateX(0)",
+    },
+    "100%": {
+      transform: "translateX(-100%)",
+    },
+  },
+}));
+
+// Styling for individual movie cards
+const StyledCard = styled(Card)(({ theme }) => ({
+  position: "relative",
+  // width: "calc(100% / 4)", // Increase width of each card (4 cards per row)
+  borderRadius: "12px", // Rounded corners for a modern look
+  boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)", // Soft shadow for better visibility
+  overflow: "hidden",
+  transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+  "&:hover": {
+    transform: "scale(1.05)", // Slight zoom-in effect
+    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.4)", // Enhanced shadow on hover
+  },
+}));
+
+// Styling for movie details that appear on hover
+const MovieDetails = styled(Box)(({ theme }) => ({
   position: "absolute",
-  bottom: 0,
+  top: 0,
   left: 0,
-  width: "100%",
-  height: "100%",
-  background: "rgba(0, 0, 0, 0.7)",
+  right: 0,
+  bottom: 0,
+  background: "rgba(0, 0, 0, 0.7)", // Dark overlay
   color: "#fff",
   display: "flex",
-  flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
   opacity: 0,
-  padding: "15px",
-  textAlign: "center",
   transition: "opacity 0.3s ease-in-out",
-  backdropFilter: "blur(5px)",
   "&:hover": {
-    opacity: 1,
+    opacity: 1, // Fade in details on hover
   },
-});
+  padding: "10px",
+}));
 
-const TrendingMovies: React.FC = () => {
+const MovieSliderComponent: React.FC = () => {
   const [movies, setMovies] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchTrendingMovies = async () => {
+    const fetchMovies = async () => {
       try {
         const response = await axios.get(API_URL, {
           params: {
-            s: "Batman",
+            s: "action", // Adjust the query to your needs
             apiKey: API_KEY,
-            type: "movie",
           },
         });
 
-        console.log("Trending Movies API Response:", response.data); // ✅ Debugging
-
         if (response.data.Response === "True") {
-          setMovies(response.data.Search.slice(0, 6));
-        } else {
-          console.error("Error fetching trending movies", response.data.Error);
+          setMovies(response.data.Search);
         }
-      } catch (error) {
-        console.error("Error fetching trending movies", error);
+      } catch (err) {
+        console.error("Error fetching movies:", err);
       }
     };
 
-    fetchTrendingMovies();
+    fetchMovies();
   }, []);
 
-  // ✅ Check if Movies Exist
-  if (movies.length === 0) {
-    return <Typography align="center">No trending movies found.</Typography>;
-  }
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    arrows: false,
-    centerMode: true,
-  };
-
   return (
-    <SliderContainer>
-      <Slider {...settings} style={{ width: "90%", height: "100%" }}>
-        {movies.map((movie) => (
-          <div key={movie.imdbID} style={{ padding: "10px" }}>
-            <MovieCard>
-              <img src={movie.Poster} alt={movie.Title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              <MovieInfo>
-                <Typography variant="h5">{movie.Title}</Typography>
-                <Typography variant="caption">📅 {movie.Year}</Typography>
-              </MovieInfo>
-            </MovieCard>
-          </div>
-        ))}
-      </Slider>
-    </SliderContainer>
+    <Container sx={{ padding: 0 }}>
+      <CarouselContainer>
+        <MovieSlider>
+          {movies.slice(0, 10).map((movie) => (
+            <StyledCard key={movie.imdbID}>
+              <CardMedia
+                component="img"
+                height="400" // Increased height of the image for better display
+                width="100%" // Ensure the image fills the card's width
+                image={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300"}
+                alt={movie.Title}
+              />
+              <MovieDetails>
+                <Box sx={{ textAlign: "center", padding: "10px" }}>
+                  <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: "1.1rem" }}>
+                    {movie.Title}
+                  </Typography>
+                  <Typography variant="body2">{movie.Year}</Typography>
+                  <Typography variant="body2">{movie.Type.toUpperCase()}</Typography>
+                </Box>
+              </MovieDetails>
+            </StyledCard>
+          ))}
+        </MovieSlider>
+      </CarouselContainer>
+    </Container>
   );
 };
 
-export default TrendingMovies;
+export default MovieSliderComponent;

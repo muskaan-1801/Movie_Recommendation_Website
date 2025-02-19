@@ -1,5 +1,5 @@
 import React from "react";
-import { AppBar, Toolbar, Typography, IconButton, TextField, Button, Grid, Container } from "@mui/material";
+import { AppBar, Toolbar, Typography, IconButton, TextField, Button, Grid, Container,Box } from "@mui/material";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 
@@ -24,6 +24,16 @@ const FloatingNavbar = styled(AppBar)(({ theme }) => ({
   "&:hover": {
     background: `linear-gradient(45deg, ${theme.palette.mode === "dark" ? "#8B0000" : "#5DADE2"}, ${theme.palette.mode === "dark" ? "#D32F2F" : "#B3E5FC"})`,
   },
+  marginBottom: 0, // Remove space below the navbar
+}));
+
+// Styling for the carousel container
+const CarouselContainer = styled(Box)(({ theme }) => ({
+  overflow: "hidden",
+  position: "relative",
+  width: "100%",
+  marginTop: "0", // Minimize the gap here
+  paddingTop: "70px", // Adjust for navbar height if necessary
 }));
 
 // Stylish Search Box with Fix for Dark Mode Placeholder
@@ -51,7 +61,7 @@ const SearchButton = styled(Button)(({ theme }) => ({
 }));
 
 // Stylish Logo Text
-const LogoText = styled(Typography)({
+const LogoText = styled(Typography)(({
   fontSize: "26px",
   fontWeight: "bold",
   fontFamily: "cursive",
@@ -62,7 +72,7 @@ const LogoText = styled(Typography)({
   alignItems: "center",
   transform: "rotate(-5deg)",
   letterSpacing: "2px",
-});
+}));
 
 const Navbar: React.FC<NavbarProps> = ({ darkMode, toggleDarkMode, query, setQuery, handleSearch }) => {
   return (
