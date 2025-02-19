@@ -19,7 +19,6 @@ import Navbar from "./Navbar";
 import { styled } from "@mui/material/styles";
 import NoImageIcon from "../assets/no-image-icon.png"; // Adjusted relative path
 
-
 const API_KEY = "5ce1ae46"; // Replace with your OMDb API key
 const API_URL = "http://www.omdbapi.com/";
 
@@ -165,7 +164,7 @@ const MovieSearch: React.FC = () => {
         <CenteredLoader>
           <CircularProgress />
           <Typography variant="body2" sx={{ mt: 1 }}>
-            Bringing your food...
+            Loading Page...
           </Typography>
           <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
             <Fastfood fontSize="large" />
@@ -198,7 +197,7 @@ const MovieSearch: React.FC = () => {
                   item
                   xs={2.4}
                   sm={2.4}
-                  md={2}
+                  md={2.4} // You can adjust this value to control how many cards per row
                   key={movie.imdbID}
                   isHovered={hoveredIndex === index}
                   isAnyHovered={hoveredIndex !== null}
