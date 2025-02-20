@@ -13,14 +13,26 @@ import {
   Skeleton,
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import { LocalMovies, Fastfood, LocalDrink } from "@mui/icons-material";
+import { LocalMovies, Fastfood, LocalDrink, SentimentDissatisfied } from "@mui/icons-material";
 import axios from "axios";
 import Navbar from "./Navbar";
 import { styled } from "@mui/material/styles";
 import NoImageIcon from "../assets/no-image-icon.png";
 
-const API_KEY = "5ce1ae46";
-const API_URL = "http://www.omdbapi.com/";
+const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
+const API_URL = "https://www.omdbapi.com/";
+
+// Interface for search filters
+interface SearchFilters {
+  type: string;
+  year: number | string;
+}
+
+// Interface for styled card container props
+interface CardContainerProps {
+  isHovered: boolean;
+  isAnyHovered: boolean;
+}
 
 const StyledCard = styled(Card)(({ theme }) => ({
   position: "relative",
@@ -39,6 +51,16 @@ const CardContainer = styled(Grid)<{ isHovered: boolean; isAnyHovered: boolean }
   ${({ isHovered, isAnyHovered }) =>
     isHovered ? "transform: scale(1.08); z-index: 2; filter: none;" : isAnyHovered ? "filter: blur(3px);" : "filter: none;"}
 `;
+
+const ErrorContainer = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: '50vh',
+  textAlign: 'center',
+  gap: '20px',
+});
 
 const CenteredLoader = styled(Box)({
   position: "fixed",
@@ -85,20 +107,32 @@ const MovieSearch: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [filters, setFilters] = useState<SearchFilters>({
+    type: "string",
+    year: "string|number",
+  });
 
-  const fetchMovies = async (searchQuery: string, pageNum: number = 1) => {
+  const fetchMovies = async (searchQuery: string, pageNum: number = 1, searchFilters: SearchFilters) => {
     if (!searchQuery) return;
     setLoading(true);
     setError("");
 
     try {
-      const response = await axios.get(API_URL, {
-        params: {
-          s: searchQuery,
-          page: pageNum,
-          apiKey: API_KEY,
-        },
-      });
+      const params: any = {
+        s: searchQuery,
+        page: pageNum,
+        apiKey: API_KEY,
+      };
+
+      // Add type and year to params if they are set
+      if (searchFilters.type) {
+        params.type = searchFilters.type;
+      }
+      if (searchFilters.year) {
+        params.y = searchFilters.year;
+      }
+
+      const response = await axios.get(API_URL, { params });
 
       if (response.data.Response === "True") {
         setMovies(response.data.Search);
@@ -117,14 +151,19 @@ const MovieSearch: React.FC = () => {
 
   const handleSearch = () => {
     setPage(1);
-    fetchMovies(query, 1);
+    fetchMovies(query, 1, filters);
   };
 
   const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
-    fetchMovies(query, value);
-    // Scroll to top when page changes
+    fetchMovies(query, value, filters);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFilterChange = (newFilters: SearchFilters) => {
+    setFilters(newFilters);
+    setPage(1);
+    fetchMovies(query, 1, newFilters);
   };
 
   const theme = createTheme({
