@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   CssBaseline,
   Container,
@@ -7,7 +7,6 @@ import {
   CardMedia,
   CardContent,
   Typography,
-  CircularProgress,
   Pagination,
   Box,
   Skeleton,
@@ -22,13 +21,11 @@ import NoImageIcon from "../assets/no-image-icon.png";
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 const API_URL = "https://www.omdbapi.com/";
 
-// Interface for search filters
 interface SearchFilters {
   type: string;
   year: number | string;
 }
 
-// Interface for styled card container props
 interface CardContainerProps {
   isHovered: boolean;
   isAnyHovered: boolean;
@@ -74,11 +71,15 @@ const CenteredLoader = styled(Box)({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  gap: "20px",
   color: "#888",
   zIndex: 1000,
+  backgroundColor: "rgba(255, 255, 255, 0.9)",
+  padding: "30px",
+  borderRadius: "15px",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
 });
 
-// Main content wrapper to ensure proper spacing
 const MainContent = styled(Box)({
   minHeight: "100vh",
   display: "flex",
@@ -86,20 +87,27 @@ const MainContent = styled(Box)({
   paddingBottom: "120px", // Space for footer and pagination
 });
 
-// Updated Container styling
 const ContentContainer = styled(Container)({
   flex: 1,
   display: "flex",
   flexDirection: "column",
 });
 
-// Updated Pagination container
-const PaginationContainer = styled(Box)({
-  width: "100%",
+const IconWrapper = styled('div')({
   display: "flex",
-  justifyContent: "center",
-  padding: "20px 0",
-  marginTop: "auto",
+  gap: "20px",
+  '& .icon': {
+    animation: "bounce 1s infinite",
+  },
+  '& .icon-1': {
+    animationDelay: '0s',
+  },
+  '& .icon-2': {
+    animationDelay: '0.2s',
+  },
+  '& .icon-3': {
+    animationDelay: '0.4s',
+  },
 });
 
 const MovieSearch: React.FC = () => {
@@ -128,7 +136,6 @@ const MovieSearch: React.FC = () => {
         apiKey: API_KEY,
       };
 
-      // Add type and year to params if they are set
       if (searchFilters.type) {
         params.type = searchFilters.type;
       }
@@ -194,6 +201,25 @@ const MovieSearch: React.FC = () => {
         />
 
         <ContentContainer maxWidth="lg">
+          {loading && (
+            <CenteredLoader>
+              <IconWrapper>
+                <div className="icon icon-1">
+                  <LocalMovies sx={{ fontSize: 40, color: "#ff6b6b" }} />
+                </div>
+                <div className="icon icon-2">
+                  <Fastfood sx={{ fontSize: 40, color: "#ffd93d" }} />
+                </div>
+                <div className="icon icon-3">
+                  <LocalDrink sx={{ fontSize: 40, color: "#6c5ce7" }} />
+                </div>
+              </IconWrapper>
+              <Typography variant="h6" sx={{ color: "#333", fontWeight: "bold" }}>
+                Loading...
+              </Typography>
+            </CenteredLoader>
+          )}
+
           {error ? (
             <ErrorContainer>
               <SentimentDissatisfied sx={{ fontSize: 80, color: 'grey.500' }} />
@@ -239,10 +265,13 @@ const MovieSearch: React.FC = () => {
                       <StyledCard>
                         <CardMedia
                           component="img"
-                          height="400"
+                          height="400"  // Fixed height for the image container
                           image={movie.Poster !== "N/A" ? movie.Poster : NoImageIcon}
                           alt={movie.Title}
-                          sx={{ objectFit: "cover" }}
+                          sx={{
+                            width: "100%",  // Ensure the image takes the full width of the container
+                            height: "400px",  // Fixed height to maintain card consistency
+                          }}
                         />
                         <CardContent sx={{ textAlign: "center" }}>
                           <Typography variant="h6" noWrap title={movie.Title}>
@@ -256,25 +285,25 @@ const MovieSearch: React.FC = () => {
             </Grid>
           )}
 
-{!error && totalPages > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={handlePageChange}
-              color="primary"
-              size="large"
-              sx={{
-                '& .MuiPaginationItem-root': {
-                  fontSize: '1.1rem',
-                },
-                '& .MuiPaginationItem-root.Mui-selected': {
-                  backgroundColor: darkMode ? '#8B0000' : '#ADD8E6',
-                  color: darkMode ? 'white' : 'black',
-                },
-              }}
-            />
-          </Box>
+          {!error && totalPages > 1 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+                size="large"
+                sx={{
+                  '& .MuiPaginationItem-root': {
+                    fontSize: '1.1rem',
+                  },
+                  '& .MuiPaginationItem-root.Mui-selected': {
+                    backgroundColor: darkMode ? '#8B0000' : '#ADD8E6',
+                    color: darkMode ? 'white' : 'black',
+                  },
+                }}
+              />
+            </Box>
           )}
         </ContentContainer>
       </MainContent>

@@ -16,14 +16,11 @@ import {
   Select,
   InputLabel,
   FormControl,
-  InputAdornment,
-  Slider,
   Snackbar,
   Alert,
-  Box,
   Divider
 } from "@mui/material";
-import { Brightness4, Brightness7, Menu as MenuIcon, FilterList } from "@mui/icons-material";
+import { Brightness4, Brightness7, FilterList } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { SelectChangeEvent } from "@mui/material";
 
