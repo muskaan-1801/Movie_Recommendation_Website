@@ -1,18 +1,26 @@
-import React from "react";
-import { Box, Typography } from "@mui/material";
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 const Footer: React.FC = () => {
+  const location = useLocation();
+
+  // Don't render footer on home page
+  if (location.pathname === '/') {
+    return null;
+  }
+
   return (
     <Box
       sx={{
-        backgroundColor: "#333", // Background color for the footer
-        color: "#fff", // White text color
-        padding: "10px 0", // Padding for vertical spacing
-        textAlign: "center", // Center the text
-        position: "fixed", // Fixed position at the bottom
-        bottom: 0, // Position it at the bottom of the screen
-        width: "100%", // Make the footer take the full width of the screen
-        zIndex: 1100, // Ensure it appears above other content
+        backgroundColor: '#333',
+        color: '#fff',
+        padding: '10px 0',
+        textAlign: 'center',
+        position: 'fixed',
+        bottom: 0,
+        width: '100%',
+        zIndex: 1100,
       }}
     >
       <Typography variant="body2">

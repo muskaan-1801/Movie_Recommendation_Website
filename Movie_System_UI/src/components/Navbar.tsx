@@ -19,11 +19,18 @@ import {
   InputAdornment,
   Slider,
   Snackbar,
-  Alert
+  Alert,
+  Box,
+  Divider
 } from "@mui/material";
-import { Brightness4, Brightness7, Menu as MenuIcon } from "@mui/icons-material";
+import { Brightness4, Brightness7, Menu as MenuIcon, FilterList } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { SelectChangeEvent } from "@mui/material";
+
+interface SearchFilters {
+  type: string;
+  year: number | string;
+}
 
 interface NavbarProps {
   darkMode: boolean;
@@ -31,6 +38,8 @@ interface NavbarProps {
   query: string;
   setQuery: (query: string) => void;
   handleSearch: () => void;
+  filters: SearchFilters;
+  onFilterChange: (filters: SearchFilters) => void;
 }
 
 // Floating Wave Animation
@@ -87,17 +96,25 @@ const LogoText = styled(Typography)(({
   letterSpacing: "2px",
 }));
 
+const FilterButton = styled(Button)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === "dark" ? "#333" : "#f5f5f5",
+  color: theme.palette.mode === "dark" ? "#fff" : "#000",
+  '&:hover': {
+    backgroundColor: theme.palette.mode === "dark" ? "#444" : "#e0e0e0",
+  },
+}));
+
 const Navbar: React.FC<NavbarProps> = ({
   darkMode,
   toggleDarkMode,
   query,
   setQuery,
   handleSearch,
+  filters,
+  onFilterChange,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [type, setType] = useState<string>("movie");
-  const [year, setYear] = useState<number>(2025);
-  const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbar for empty input
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -109,23 +126,20 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setType(event.target.value);
+    const newFilters = { ...filters, type: event.target.value };
+    onFilterChange(newFilters);
   };
 
-  const handleYearChange = (event: SelectChangeEvent<number>) => {
-    setYear(Number(event.target.value)); // Ensure the value is a number
-  };
-
-  const handleYearSliderChange = (_: Event, newValue: number | number[]) => {
-    if (Array.isArray(newValue)) return;
-    setYear(newValue);
+  const handleYearChange = (event: SelectChangeEvent<number | string>) => {
+    const newFilters = { ...filters, year: event.target.value };
+    onFilterChange(newFilters);
   };
 
   const handleSearchClick = () => {
     if (query.trim() === "") {
-      setOpenSnackbar(true); // Show error if input is empty
+      setOpenSnackbar(true);
     } else {
-      handleSearch(); // Proceed with search if input is valid
+      handleSearch();
     }
   };
 
@@ -135,12 +149,15 @@ const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
+  const clearFilters = () => {
+    onFilterChange({ type: "", year: "" });
+  };
+
   return (
     <FloatingNavbar position="fixed">
       <Container maxWidth="lg">
         <Toolbar>
           <Grid container alignItems="center" spacing={2}>
-            {/* Fancy Movie Hub Text */}
             <Grid item xs={12} sm={3} sx={{ textAlign: "center" }}>
               <LogoText>
                 <span>Movie</span>
@@ -148,7 +165,7 @@ const Navbar: React.FC<NavbarProps> = ({
               </LogoText>
             </Grid>
 
-            {/* Search Box */}
+            {/* Search section */}
             <Grid item xs={12} sm={5}>
               <SearchBox
                 variant="outlined"
@@ -156,86 +173,98 @@ const Navbar: React.FC<NavbarProps> = ({
                 placeholder="Search movies..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyPress} // Handle Enter press
+                onKeyDown={handleKeyPress}
               />
             </Grid>
 
-            {/* Search Button */}
+            {/* Search button */}
             <Grid item xs={6} sm={2}>
               <SearchButton variant="contained" fullWidth onClick={handleSearchClick}>
                 Search
               </SearchButton>
             </Grid>
 
-            {/* Filters Dropdown (hover to open) */}
+            {/* Filter menu */}
             <Grid item xs={6} sm={1} sx={{ textAlign: "center" }}>
-              <IconButton
+              <FilterButton
                 onClick={handleMenuClick}
-                color="inherit"
-                onMouseEnter={handleMenuClick} // Open on hover
+                startIcon={<FilterList />}
+                variant="contained"
+                size="small"
               >
-                <MenuIcon />
-              </IconButton>
+                Filters
+              </FilterButton>
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
-                MenuListProps={{
-                  onMouseLeave: handleClose, // Close when mouse leaves
+                PaperProps={{
+                  sx: { width: 250, maxHeight: 500 }
                 }}
               >
                 <MenuItem>
-                  <Typography variant="h6">Filters</Typography>
+                  <Typography variant="h6">Search Filters</Typography>
                 </MenuItem>
+                <Divider />
 
-                {/* Type Filter */}
                 <MenuItem>
-                  <FormControl>
-                    <RadioGroup value={type} onChange={handleTypeChange}>
+                  <FormControl fullWidth>
+                    <RadioGroup
+                      value={filters.type}
+                      onChange={handleTypeChange}
+                      name="type-group"
+                    >
+                      <FormControlLabel
+                        value=""
+                        control={<Radio />}
+                        label="All Types"
+                      />
                       <FormControlLabel
                         value="movie"
                         control={<Radio />}
-                        label="Movie"
+                        label="Movies Only"
                       />
                       <FormControlLabel
                         value="series"
                         control={<Radio />}
-                        label="Series"
+                        label="Series Only"
                       />
                     </RadioGroup>
                   </FormControl>
                 </MenuItem>
 
-                {/* Year Filter */}
                 <MenuItem>
                   <FormControl fullWidth>
-                    <InputLabel>Year</InputLabel>
+                    <InputLabel>Release Year</InputLabel>
                     <Select
-                      value={year}
-                      onChange={handleYearChange} // Updated to correct type
-                      startAdornment={<InputAdornment position="start">Year</InputAdornment>}
+                      value={filters.year}
+                      onChange={handleYearChange}
+                      label="Release Year"
                     >
+                      <MenuItem value="">All Years</MenuItem>
                       {[...Array(currentYear - 1950 + 1)].map((_, index) => (
                         <MenuItem key={1950 + index} value={1950 + index}>
                           {1950 + index}
                         </MenuItem>
                       ))}
                     </Select>
-                    {/* Year Slider */}
-                    <Slider
-                      value={year}
-                      onChange={handleYearSliderChange}
-                      min={1950}
-                      max={currentYear}
-                      valueLabelDisplay="auto"
-                      valueLabelFormat={(value) => value}
-                    />
                   </FormControl>
+                </MenuItem>
+
+                <MenuItem>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    onClick={clearFilters}
+                    color="primary"
+                  >
+                    Clear Filters
+                  </Button>
                 </MenuItem>
               </Menu>
             </Grid>
 
-            {/* Dark Mode Toggle */}
+            {/* Dark mode toggle */}
             <Grid item xs={6} sm={1} sx={{ textAlign: "center" }}>
               <IconButton onClick={toggleDarkMode} color="inherit">
                 {darkMode ? <Brightness7 /> : <Brightness4 />}
@@ -245,7 +274,6 @@ const Navbar: React.FC<NavbarProps> = ({
         </Toolbar>
       </Container>
 
-      {/* Snackbar for empty input */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
