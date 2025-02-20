@@ -19,10 +19,9 @@ import {
   InputAdornment,
   Slider,
   Snackbar,
-  Alert,
-  Box
+  Alert
 } from "@mui/material";
-import { Brightness4, Brightness7, Menu as MenuIcon, LocalMovies, LocalCafe } from "@mui/icons-material";
+import { Brightness4, Brightness7, Menu as MenuIcon } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { SelectChangeEvent } from "@mui/material";
 
@@ -34,6 +33,7 @@ interface NavbarProps {
   handleSearch: () => void;
 }
 
+// Floating Wave Animation
 const FloatingNavbar = styled(AppBar)(({ theme }) => ({
   position: "fixed",
   top: 0,
@@ -46,9 +46,10 @@ const FloatingNavbar = styled(AppBar)(({ theme }) => ({
   "&:hover": {
     background: `linear-gradient(45deg, ${theme.palette.mode === "dark" ? "#8B0000" : "#5DADE2"}, ${theme.palette.mode === "dark" ? "#D32F2F" : "#B3E5FC"})`,
   },
-  marginBottom: 0,
+  marginBottom: 0, // Remove space below the navbar
 }));
 
+// Stylish Search Box with Fix for Dark Mode Placeholder
 const SearchBox = styled(TextField)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#333" : "#fff",
   color: theme.palette.mode === "dark" ? "#fff" : "#000",
@@ -60,6 +61,7 @@ const SearchBox = styled(TextField)(({ theme }) => ({
   },
 }));
 
+// Styled Search Button (Black in Dark Mode)
 const SearchButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#000" : "#007BFF",
   color: theme.palette.mode === "dark" ? "#fff" : "#fff",
@@ -71,14 +73,8 @@ const SearchButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Updated LogoText with icon container
-const LogoContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-});
-
-const LogoText = styled(Typography)({
+// Stylish Logo Text
+const LogoText = styled(Typography)(({
   fontSize: "26px",
   fontWeight: "bold",
   fontFamily: "cursive",
@@ -89,20 +85,7 @@ const LogoText = styled(Typography)({
   alignItems: "center",
   transform: "rotate(-5deg)",
   letterSpacing: "2px",
-});
-
-// Custom styled icons
-const StyledLocalMovies = styled(LocalMovies)({
-  fontSize: '32px',
-  color: 'gold',
-  transform: 'rotate(-10deg)',
-});
-
-const StyledLocalCafe = styled(LocalCafe)({
-  fontSize: '32px',
-  color: '#8B4513', // Brown color for popcorn
-  transform: 'rotate(10deg)',
-});
+}));
 
 const Navbar: React.FC<NavbarProps> = ({
   darkMode,
@@ -114,7 +97,7 @@ const Navbar: React.FC<NavbarProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [type, setType] = useState<string>("movie");
   const [year, setYear] = useState<number>(2025);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false); // Snackbar for empty input
   const currentYear = new Date().getFullYear();
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -130,7 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({
   };
 
   const handleYearChange = (event: SelectChangeEvent<number>) => {
-    setYear(Number(event.target.value));
+    setYear(Number(event.target.value)); // Ensure the value is a number
   };
 
   const handleYearSliderChange = (_: Event, newValue: number | number[]) => {
@@ -140,9 +123,9 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const handleSearchClick = () => {
     if (query.trim() === "") {
-      setOpenSnackbar(true);
+      setOpenSnackbar(true); // Show error if input is empty
     } else {
-      handleSearch();
+      handleSearch(); // Proceed with search if input is valid
     }
   };
 
@@ -157,18 +140,15 @@ const Navbar: React.FC<NavbarProps> = ({
       <Container maxWidth="lg">
         <Toolbar>
           <Grid container alignItems="center" spacing={2}>
-            {/* Updated Logo section with icons */}
+            {/* Fancy Movie Hub Text */}
             <Grid item xs={12} sm={3} sx={{ textAlign: "center" }}>
-              <LogoContainer>
-                <StyledLocalMovies />
-                <LogoText>
-                  <span>Movie</span>
-                  <span style={{ fontSize: "32px", color: "gold" }}>Hub!</span>
-                </LogoText>
-                <StyledLocalCafe />
-              </LogoContainer>
+              <LogoText>
+                <span>Movie</span>
+                <span style={{ fontSize: "32px", color: "gold" }}>Hub!</span>
+              </LogoText>
             </Grid>
 
+            {/* Search Box */}
             <Grid item xs={12} sm={5}>
               <SearchBox
                 variant="outlined"
@@ -176,21 +156,23 @@ const Navbar: React.FC<NavbarProps> = ({
                 placeholder="Search movies..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyPress}
+                onKeyDown={handleKeyPress} // Handle Enter press
               />
             </Grid>
 
+            {/* Search Button */}
             <Grid item xs={6} sm={2}>
               <SearchButton variant="contained" fullWidth onClick={handleSearchClick}>
                 Search
               </SearchButton>
             </Grid>
 
+            {/* Filters Dropdown (hover to open) */}
             <Grid item xs={6} sm={1} sx={{ textAlign: "center" }}>
               <IconButton
                 onClick={handleMenuClick}
                 color="inherit"
-                onMouseEnter={handleMenuClick}
+                onMouseEnter={handleMenuClick} // Open on hover
               >
                 <MenuIcon />
               </IconButton>
@@ -199,13 +181,14 @@ const Navbar: React.FC<NavbarProps> = ({
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
                 MenuListProps={{
-                  onMouseLeave: handleClose,
+                  onMouseLeave: handleClose, // Close when mouse leaves
                 }}
               >
                 <MenuItem>
                   <Typography variant="h6">Filters</Typography>
                 </MenuItem>
 
+                {/* Type Filter */}
                 <MenuItem>
                   <FormControl>
                     <RadioGroup value={type} onChange={handleTypeChange}>
@@ -223,12 +206,13 @@ const Navbar: React.FC<NavbarProps> = ({
                   </FormControl>
                 </MenuItem>
 
+                {/* Year Filter */}
                 <MenuItem>
                   <FormControl fullWidth>
                     <InputLabel>Year</InputLabel>
                     <Select
                       value={year}
-                      onChange={handleYearChange}
+                      onChange={handleYearChange} // Updated to correct type
                       startAdornment={<InputAdornment position="start">Year</InputAdornment>}
                     >
                       {[...Array(currentYear - 1950 + 1)].map((_, index) => (
@@ -237,6 +221,7 @@ const Navbar: React.FC<NavbarProps> = ({
                         </MenuItem>
                       ))}
                     </Select>
+                    {/* Year Slider */}
                     <Slider
                       value={year}
                       onChange={handleYearSliderChange}
@@ -250,6 +235,7 @@ const Navbar: React.FC<NavbarProps> = ({
               </Menu>
             </Grid>
 
+            {/* Dark Mode Toggle */}
             <Grid item xs={6} sm={1} sx={{ textAlign: "center" }}>
               <IconButton onClick={toggleDarkMode} color="inherit">
                 {darkMode ? <Brightness7 /> : <Brightness4 />}
@@ -259,6 +245,7 @@ const Navbar: React.FC<NavbarProps> = ({
         </Toolbar>
       </Container>
 
+      {/* Snackbar for empty input */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={3000}
