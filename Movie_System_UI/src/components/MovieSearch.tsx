@@ -17,11 +17,13 @@ import { LocalMovies, Fastfood, LocalDrink } from "@mui/icons-material"; // Icon
 import axios from "axios";
 import Navbar from "./Navbar";
 import { styled } from "@mui/material/styles";
-import NoImageIcon from "../assets/no-image-icon.png"; // Adjusted relative path
+import NoImageIcon from "../assets/no-image-icon.png"; 
 
-const API_KEY = "5ce1ae46"; // Replace with your OMDb API key
+//Key taken from URL given 
+const API_KEY = "5ce1ae46"; 
 const API_URL = "http://www.omdbapi.com/";
 
+//Adding custom style
 const StyledCard = styled(Card)(({ theme }) => ({
   position: "relative",
   border: `3px solid ${theme.palette.mode === "dark" ? "#8B0000" : "#ADD8E6"}`,
@@ -34,12 +36,16 @@ const StyledCard = styled(Card)(({ theme }) => ({
   flexDirection: "column",
 }));
 
+
+//Effects of focus and blur on Cards placed in Grid
 const CardContainer = styled(Grid)<{ isHovered: boolean; isAnyHovered: boolean }>`
   transition: filter 0.3s ease-in-out, transform 0.3s ease-in-out;
   ${({ isHovered, isAnyHovered }) =>
     isHovered ? "transform: scale(1.08); z-index: 2; filter: none;" : isAnyHovered ? "filter: blur(3px);" : "filter: none;"}
 `;
 
+
+//When content is loading then the styling of loader
 const CenteredLoader = styled(Box)({
   position: "fixed",
   top: "50%",
@@ -55,7 +61,7 @@ const CenteredLoader = styled(Box)({
 // Footer styled component with default hidden state
 const FooterContainer = styled(Box)(({ theme }) => ({
   display: "none",
-  position: "fixed",
+  // position: "relative",
   bottom: 0,
   left: 0,
   width: "100%",
@@ -75,14 +81,23 @@ const PaginationContainer = styled(Box)({
 });
 
 const MovieSearch: React.FC = () => {
+  //For input search
   const [query, setQuery] = useState<string>("");
+   //For movies data
   const [movies, setMovies] = useState<any[]>([]);
+  //loader
   const [loading, setLoading] = useState<boolean>(false);
+  //if movie not found
   const [error, setError] = useState<string>("");
+  //page no set
   const [page, setPage] = useState<number>(1);
+  //on the basis of data found pagination
   const [totalPages, setTotalPages] = useState<number>(1);
+  //mode set
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  //hover on data
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  //visibility of footer when data is generated
   const [footerVisible, setFooterVisible] = useState<boolean>(false);
 
   const fetchMovies = async (searchQuery: string, pageNum: number = 1) => {
@@ -117,7 +132,7 @@ const MovieSearch: React.FC = () => {
   };
 
   const handleSearch = () => {
-    setPage(1);
+    setPage(1); //it means whenever you search the result will come to page 1
     fetchMovies(query, 1);
   };
 
@@ -208,7 +223,7 @@ const MovieSearch: React.FC = () => {
                     <CardMedia
                       component="img"
                       height="100%"
-                      image={movie.Poster !== "N/A" ? movie.Poster : NoImageIcon} // Use imported NoImageIcon here
+                      image={movie.Poster !== "N/A" ? movie.Poster : NoImageIcon} // Using imported NoImageIcon here in assets
                       alt={movie.Title}
                       sx={{ aspectRatio: "1" }}
                     />
