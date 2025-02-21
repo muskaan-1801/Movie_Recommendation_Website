@@ -124,6 +124,10 @@ const MovieSearch: React.FC = () => {
     year: "",
   });
 
+  const handleCardClick = (imdbID: string) => {
+    window.open(`https://www.imdb.com/title/${imdbID}`, '_blank');
+  };
+
   const fetchMovies = async (searchQuery: string, pageNum: number = 1, searchFilters: SearchFilters) => {
     if (!searchQuery) return;
     setLoading(true);
@@ -262,24 +266,49 @@ const MovieSearch: React.FC = () => {
                       onMouseEnter={() => setHoveredIndex(index)}
                       onMouseLeave={() => setHoveredIndex(null)}
                     >
-                      <StyledCard>
+                      <StyledCard onClick={() => handleCardClick(movie.imdbID)}>
+                      <Box sx={{ 
+                        position: 'relative',
+                        paddingTop: '150%', // This maintains a 2:3 aspect ratio
+                        width: '100%',
+                        overflow: 'hidden'
+                      }}>
                         <CardMedia
                           component="img"
-                          height="400"  // Fixed height for the image container
                           image={movie.Poster !== "N/A" ? movie.Poster : NoImageIcon}
                           alt={movie.Title}
                           sx={{
-                            width: "100%",  // Ensure the image takes the full width of the container
-                            height: "400px",  // Fixed height to maintain card consistency
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
                           }}
                         />
-                        <CardContent sx={{ textAlign: "center" }}>
-                          <Typography variant="h6" noWrap title={movie.Title}>
-                            {movie.Title}
-                          </Typography>
-                          <Typography variant="body2">{movie.Year}</Typography>
-                        </CardContent>
-                      </StyledCard>
+                      </Box>
+                      <CardContent sx={{ 
+                        textAlign: "center",
+                        flexGrow: 1, // This ensures the content takes up remaining space
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center'
+                      }}>
+                        <Typography 
+                          variant="h6" 
+                          noWrap 
+                          title={movie.Title}
+                          sx={{
+                            fontSize: '1rem',
+                            lineHeight: 1.2,
+                            mb: 1
+                          }}
+                        >
+                          {movie.Title}
+                        </Typography>
+                        <Typography variant="body2">{movie.Year}</Typography>
+                      </CardContent>
+                    </StyledCard>
                     </CardContainer>
                   ))}
             </Grid>
